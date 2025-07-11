@@ -20,22 +20,28 @@ import {
     const [recipes, setrecipes] = useState([]);
     const [loading, setLoading] = useState(true);
   
-    useEffect(() => {
-      const fetchRecipes = async () => {
-        const storedRecipes = await AsyncStorage.getItem("customrecipes");
-        if (storedRecipes) {
-          setrecipes(JSON.parse(storedRecipes));
-        }
-        setLoading(false); // Loading is complete
-        console.log(`fetchRecipes: ${recipes.length} recipes`);
-      };
+    const fetchRecipes = async () => {
+      setLoading(true);
+      const storedRecipes = await AsyncStorage.getItem("customrecipes");
+      if (storedRecipes) {
+        setrecipes(JSON.parse(storedRecipes));
+      } else {
+        setrecipes([]);
+      }
+      setLoading(false);
+      console.log(`fetchRecipes: ${JSON.parse(storedRecipes || '[]').length} recipes`);
+    };
 
+    useEffect(() => {
       fetchRecipes();
     }, []);
   
     const handleAddrecipe = () => {
-        navigation.navigate("RecipesFormScreen");
-
+        navigation.navigate("RecipesFormScreen", {
+          onRecipeAdded: () => {
+            fetchRecipes(); // Refresh the list when a recipe is added
+          }
+        });
     };
   
     const handlerecipeClick = (recipe) => {
@@ -54,8 +60,13 @@ import {
     };
   
     const editrecipe = (recipe, index) => {
-      navigation.navigate("RecipesFormScreen", { recipeToEdit: recipe, recipeIndex: index });
-
+      navigation.navigate("RecipesFormScreen", { 
+        recipeToEdit: recipe, 
+        recipeIndex: index,
+        onRecipeEdited: () => {
+          fetchRecipes(); // Refresh the list when a recipe is edited
+        }
+      });
     };
   
     return (
