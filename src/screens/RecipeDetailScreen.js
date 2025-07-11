@@ -100,8 +100,8 @@ export default function RecipeDetailScreen(props) {
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>Ingredients</Text>
         <View style={styles.ingredientsList} testID="ingredientsList">
-          {(recipe.ingredients).map((i) => (
-            <View key={i} style={styles.ingredientItem}>
+          {(recipe.ingredients).map((i, index) => (
+            <View key={`${i.ingredientName}`} style={styles.ingredientItem}>
               <View style={styles.ingredientBullet} />
               <Text style={styles.ingredientText}>
                 {/* {meal["strMeasure" + i]} {meal["strIngredient" + i]} */}

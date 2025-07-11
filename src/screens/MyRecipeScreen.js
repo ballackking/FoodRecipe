@@ -21,25 +21,40 @@ import {
     const [loading, setLoading] = useState(true);
   
     useEffect(() => {
-      const fetchrecipes = async () => {
-        
-        };
-  
-      fetchrecipes();
+      const fetchRecipes = async () => {
+        const storedRecipes = await AsyncStorage.getItem("customrecipes");
+        if (storedRecipes) {
+          setrecipes(JSON.parse(storedRecipes));
+        }
+        setLoading(false); // Loading is complete
+        console.log(`fetchRecipes: ${recipes.length} recipes`);
+      };
+
+      fetchRecipes();
     }, []);
   
     const handleAddrecipe = () => {
+        navigation.navigate("RecipesFormScreen");
 
     };
   
     const handlerecipeClick = (recipe) => {
+      navigation.navigate("CustomRecipesScreen", { recipe });
 
     };
     const deleterecipe = async (index) => {
-    
+        try {
+          const updatedRecipes = [...recipes];
+          updatedRecipes.splice(index, 1); // Remove reciple from array
+          await AsyncStorage.setItem("customrecipes", JSON.stringify(updatedRecipes)); // Update AsyncStorage
+          setrecipes(updatedRecipes); // Update state
+        } catch (error) {
+          console.error("Error deleting the recipe:", error);
+        }
     };
   
     const editrecipe = (recipe, index) => {
+      navigation.navigate("RecipesFormScreen", { recipeToEdit: recipe, recipeIndex: index });
 
     };
   
@@ -64,16 +79,35 @@ import {
               recipes.map((recipe, index) => (
                 <View key={index} style={styles.recipeCard} testID="recipeCard">
                   <TouchableOpacity testID="handlerecipeBtn" onPress={() => handlerecipeClick(recipe)}>
+                    {recipe.image && (
+                      <Image
+                        source={{ uri: recipe.image }}
+                        style={styles.articleImage}
+                      />
+                    )}
                   
                     <Text style={styles.recipeTitle}>{recipe.title}</Text>
                     <Text style={styles.recipeDescription} testID="recipeDescp">
-                  
+                      {recipe.description.length > 50
+                        ? `${recipe.description.slice(0, 50)}...`
+                        : recipe.description}
                     </Text>
                   </TouchableOpacity>
   
                   {/* Edit and Delete Buttons */}
                   <View style={styles.actionButtonsContainer} testID="editDeleteButtons">
-                    
+                    <TouchableOpacity
+                      onPress={() => editrecipe(recipe, index)}
+                      style={styles.editButton}
+                    >
+                      <Text style={styles.editButtonText}>Edit</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => deleterecipe(index)}
+                      style={styles.deleteButton}
+                    >
+                      <Text style={styles.deleteButtonText}>Delete</Text>
+                    </TouchableOpacity>
                 
                   </View>
                 </View>
@@ -134,11 +168,14 @@ import {
       padding: wp(3),
       borderRadius: 8,
       marginBottom: hp(2),
-      shadowColor: "#000",
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      shadowOffset: { width: 0, height: 2 },
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
       elevation: 3, // for Android shadow
+    },
+    articleImage: {
+      width: 300, // Set width for recipe image
+      height: 150, // Adjust height of the image
+      borderRadius: 8,
+      marginBottom: hp(1),
     },
     recipeImage: {
       width: 300, // Set width for recipe image
