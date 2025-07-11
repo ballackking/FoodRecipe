@@ -76,7 +76,9 @@ import {
             {recipes.length === 0 ? (
               <Text style={styles.norecipesText}>No recipes added yet.</Text>
             ) : (
-              recipes.map((recipe, index) => (
+              recipes.map((recipe, index) => {
+                console.log(`Rendering recipe ${index + 1}:`, recipe);
+                return (
                 <View key={index} style={styles.recipeCard} testID="recipeCard">
                   <TouchableOpacity testID="handlerecipeBtn" onPress={() => handlerecipeClick(recipe)}>
                     {recipe.image && (
@@ -111,7 +113,8 @@ import {
                 
                   </View>
                 </View>
-              ))
+                );
+              })
             )}
           </ScrollView>
         )}
